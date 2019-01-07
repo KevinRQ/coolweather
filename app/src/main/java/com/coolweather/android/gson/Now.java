@@ -7,6 +7,9 @@ public class Now {
     @SerializedName("tmp")
     public String temperature;
 
+//    @SerializedName("cond_txt")   // Free Weather
+//    public String info;
+
     @SerializedName("cond")
     public More more;
 

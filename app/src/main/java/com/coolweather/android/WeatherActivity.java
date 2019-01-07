@@ -69,13 +69,16 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            View decorView = getWindow().getDecorView();
+
+        if (Build.VERSION.SDK_INT >= 21) {  // Android 5.0以上才支持
+            View decorView = getWindow().getDecorView();    // 获取到当前活动的 DecorView
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);   // 表示活动的布局会显示在状态栏上面
+            getWindow().setStatusBarColor(Color.TRANSPARENT);   // 将状态栏设置成透明色
         }
+
         setContentView(R.layout.activity_weather);
+
         // 初始化各控件
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
@@ -90,9 +93,10 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary); // 设置下拉刷新进度条的颜色
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
@@ -100,29 +104,32 @@ public class WeatherActivity extends AppCompatActivity {
             Weather weather = Utility.handleWeatherResponse(weatherString);
             mWeatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
+
         } else {
             // 无缓存时去服务器查询天气
             mWeatherId = getIntent().getStringExtra("weather_id");
-            weatherLayout.setVisibility(View.INVISIBLE);
+            weatherLayout.setVisibility(View.INVISIBLE);    // 请求数据前先将 ScrollView 隐藏，不然空数据的界面看上去会很怪
             requestWeather(mWeatherId);
         }
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {  // 下拉刷新数据
             @Override
             public void onRefresh() {
                 requestWeather(mWeatherId);
             }
         });
+
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
+                drawerLayout.openDrawer(GravityCompat.START);   // 打开滑动菜单
             }
         });
+
         String bingPic = prefs.getString("bing_pic", null);
         if (bingPic != null) {
-            Glide.with(this).load(bingPic).into(bingPicImg);
+            Glide.with(this).load(bingPic).into(bingPicImg);    // 直接从缓存中加载图片
         } else {
-            loadBingPic();
+            loadBingPic();  // 请求并加载必应每日一图
         }
     }
 
@@ -130,25 +137,35 @@ public class WeatherActivity extends AppCompatActivity {
      * 根据天气id请求城市天气信息。
      */
     public void requestWeather(final String weatherId) {
-        String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
+        //String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
+
+        //String weatherUrl = "https://free-api.heweather.com/s6/weather?location=" + weatherId + "&key=a6a0bb6c54f140f1bb883c77ce7941b0";
+        String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=a6a0bb6c54f140f1bb883c77ce7941b0";
+
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+
                 final String responseText = response.body().string();
-                final Weather weather = Utility.handleWeatherResponse(responseText);
+
+                final Weather weather = Utility.handleWeatherResponse(responseText);    // 将 JSON 数据转换成 Weather 对象
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (weather != null && "ok".equals(weather.status)) {
+
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
                             editor.apply();
+
                             mWeatherId = weather.basic.weatherId;
-                            showWeatherInfo(weather);
+                            showWeatherInfo(weather);   // 处理并展示Weather实体类中的数据
+
                         } else {
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
                         }
-                        swipeRefresh.setRefreshing(false);
+                        swipeRefresh.setRefreshing(false);  // 表示刷新事件结束，并隐藏刷新进度条
                     }
                 });
             }
@@ -165,7 +182,7 @@ public class WeatherActivity extends AppCompatActivity {
                 });
             }
         });
-        loadBingPic();
+        loadBingPic();  // 加载每日一图
     }
 
     /**
@@ -176,10 +193,12 @@ public class WeatherActivity extends AppCompatActivity {
         HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String bingPic = response.body().string();
+                final String bingPic = response.body().string();    // 获得图片链接
+
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                 editor.putString("bing_pic", bingPic);
                 editor.apply();
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -200,14 +219,16 @@ public class WeatherActivity extends AppCompatActivity {
      */
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime.split(" ")[1];
+        String updateTime = weather.basic.update.updateTime.split(" ")[1];    // changed by Kevin on 2019-01-04
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
+
         titleCity.setText(cityName);
         titleUpdateTime.setText(updateTime);
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
         forecastLayout.removeAllViews();
+
         for (Forecast forecast : weather.forecastList) {
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
             TextView dateText = (TextView) view.findViewById(R.id.date_text);
@@ -218,7 +239,8 @@ public class WeatherActivity extends AppCompatActivity {
             infoText.setText(forecast.more.info);
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
-            forecastLayout.addView(view);
+            forecastLayout.addView(view);   // 添加子项到父布局中
+
         }
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
@@ -230,7 +252,9 @@ public class WeatherActivity extends AppCompatActivity {
         comfortText.setText(comfort);
         carWashText.setText(carWash);
         sportText.setText(sport);
-        weatherLayout.setVisibility(View.VISIBLE);
+        weatherLayout.setVisibility(View.VISIBLE);  // 将 ScrollView 重新设置为可见
+
+        // 启动后台更新服务
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
     }

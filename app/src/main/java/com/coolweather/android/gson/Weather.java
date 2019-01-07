@@ -19,4 +19,6 @@ public class Weather {
     @SerializedName("daily_forecast")
     public List<Forecast> forecastList;
 
+//    public Update update;
+
 }

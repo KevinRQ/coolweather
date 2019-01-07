@@ -5,17 +5,20 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
+    <!--由于 FrameLayout 默认情况下会将空间都放置在左上角，因此 ScrollView 会完全覆盖住 ImageView，从而 ImageView 就成为背景图片了-->
     <ImageView
         android:id="@+id/bing_pic_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
+    <!--DrawerLayout 中的第一个控件用于作为主屏幕中显示的内容，第二个控件用于作为滑动菜单中显示的内容-->
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--实现下拉刷新功能-->
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
@@ -32,6 +35,7 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+
                     android:fitsSystemWindows="true">
 
                     <include layout="@layout/title" />

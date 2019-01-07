@@ -7,6 +7,7 @@
     android:background="#fff"
     android:fitsSystemWindows="true">
 
+    <!--之所以自定义标题栏，是因为碎片中最好不要直接使用 ActionBar 或 Toolbar，不然复用的时候可能会出现一些不想看到的效果-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -30,6 +31,7 @@
             android:background="@drawable/ic_back"/>
     </RelativeLayout>
 
+    <!--使用 ListView 是因为它会自动给子项之间添加分隔线，如果使用 RecyclerView 实现同样功能则会比较麻烦-->
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
